@@ -1,7 +1,8 @@
+"""Lambda handler module."""
 import json
 
 
-def handler(event, context):
+def handler():
     """AWS Lambda handler."""
     return {
         "statusCode": 200,

@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
-
+pylint src/test-deployment &&
+black --check src/test-deployment &&
 cd iac && npx lint-staged
