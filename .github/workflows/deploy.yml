@@ -6,7 +6,8 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  validate:
+    name: Validate Code Quality
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -22,15 +23,70 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Dependencies
+      - name: Install dependencies (IAC)
         run: |
           cd iac
           npm ci
 
-      - name: Build
+      - name: Lint and Format IAC (TypeScript)
         run: |
           cd iac
-          npm run build
+          npm run lint
+          npx prettier --check 'lib/**/*.ts' 'bin/**/*.ts'
+
+      - name: Lint and Format SRC (Python)
+        run: |
+          pip install pylint black
+          pylint src/test-deployment
+          black --check src/test-deployment
+
+  synth:
+    name: Build (Synth)
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          cd iac
+          npm ci
+
+      - name: Synth
+        run: |
+          cd iac
+          npx cdk synth
+
+      - name: Upload CDK Assembly
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdk-out
+          path: iac/cdk.out
+
+  deploy:
+    name: Deploy
+    needs: synth
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Download CDK Assembly
+        uses: actions/download-artifact@v4
+        with:
+          name: cdk-out
+          path: iac/cdk.out
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -42,6 +98,5 @@ jobs:
       - name: Deploy
         run: |
           cd iac
-          npx cdk bootstrap
-          npx cdk synth
-          npx cdk deploy --all --require-approval never
+          npm install -g aws-cdk
+          cdk deploy --app cdk.out --all --require-approval never
