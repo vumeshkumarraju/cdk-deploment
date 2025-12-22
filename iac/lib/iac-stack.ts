@@ -16,7 +16,6 @@ export class IacStack extends cdk.Stack {
       code: lambda.Code.fromAsset('../src/test-deployment'),
     });
 
-
     const api = new apigwv2.HttpApi(this, 'TestApi', { apiName: 'test-api' });
     api.addRoutes({
       path: '/test',

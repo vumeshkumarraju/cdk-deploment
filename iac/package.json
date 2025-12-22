@@ -7,10 +7,21 @@
   "scripts": {
     "lint": "eslint 'lib/**/*.ts' 'bin/**/*.ts' --ignore-pattern '*.d.ts'",
     "format": "prettier --write 'lib/**/*.ts' 'bin/**/*.ts'",
+    "prepare": "cd .. && husky install iac/.husky",
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk"
+  },
+  "lint-staged": {
+    "**/*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "**/*.py": [
+      "black",
+      "pylint"
+    ]
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
@@ -20,6 +31,8 @@
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.0.0",
     "jest": "^29.7.0",
     "prettier": "^3.0.0",
     "ts-jest": "^29.2.5",
