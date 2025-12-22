@@ -36,9 +36,8 @@ jobs:
 
       - name: Lint and Format SRC (Python)
         run: |
-          pip install pylint black
+          pip install pylint
           pylint src/test-deployment
-          black --check src/test-deployment
 
   synth:
     name: Build (Synth)

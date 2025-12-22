@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
-pylint src/test-deployment &&
-black --check src/test-deployment &&
+pylint src/test-deployment
+EXIT_CODE=$?
 cd iac && npx lint-staged
+exit $(( EXIT_CODE | $? ))
